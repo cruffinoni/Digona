@@ -1,41 +1,29 @@
 package main
 
 import (
-	"github.com/bwmarrin/discordgo"
+	"github.com/Digona/src/connection"
+	"github.com/Digona/src/digona"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
-
-type botStructure struct {
-	session *discordgo.Session
-	data *discordgo.User
-	upTime time.Time
-	game discordgo.Game
-}
-
-var DigonaBot botStructure
-
-const digonaVersion = "0.0.1"
 
 func main() {
 	var err error
-	if initBot() != nil {
+	if connection.InitBot(&digona.Bot) != nil {
 		return
 	}
-	RegisterHandler(DigonaBot.session)
-	err = DigonaBot.session.Open()
+	RegisterHandler(digona.Bot.Session)
+	err = digona.Bot.Session.Open()
 	if err != nil {
-		log.Printf("Error occured during the bot connection: %v\n", err.Error())
-		os.Exit(1)
+		log.Fatalf("Error occured during the bot connection: %v\n", err.Error())
 	}
 	botHandler := make(chan os.Signal, 1)
 	signal.Notify(botHandler, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-botHandler
-	err = DigonaBot.session.Close()
+	err = digona.Bot.Session.Close()
 	if err != nil {
-		log.Printf("Error occured during the bot deconnection: %v\n", err.Error())
+		log.Fatalf("Error occured during the bot deconnection: %v\n", err.Error())
 	}
 }
