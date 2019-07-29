@@ -10,7 +10,7 @@ import (
 type commandHandler func(*MessageParser) error
 
 var userCommands = map[string] commandHandler {
-	"delete": deleteLastMessages,
+	"delete": redirectDelete,
 }
 
 func OnMessageCreated(session *discordgo.Session, message *discordgo.MessageCreate) {
@@ -22,6 +22,7 @@ func OnMessageCreated(session *discordgo.Session, message *discordgo.MessageCrea
 	//fmt.Printf("Mentions role: '%v'\n", message.MentionRoles)
 	//fmt.Printf("Mentions: '%v'\n", message.Mentions)
 	parser := New(message)
+	//fmt.Printf("The current session: %v\n")
 	if !parser.isMentioned {
 		fmt.Printf("The author might not talk to me.\n")
 		return
@@ -30,7 +31,7 @@ func OnMessageCreated(session *discordgo.Session, message *discordgo.MessageCrea
 		_ = digona.Bot.DisplayError(parser.channel, "Je n'ai pas compris! :/\n")
 		return
 	}
-	fmt.Printf("Command '%v' detected with args: '%v'\n", parser.Command, parser.Args)
+	fmt.Printf("Command '%v' detected with args: '%v'\n", parser.Command, parser.args)
 	if err := parser.handler(parser); err != nil {
 		log.Printf("An error occured during executing command '%v' with error '%v'\n", parser.Command, err.Error())
 	}
