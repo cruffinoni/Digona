@@ -1,14 +1,14 @@
-package main
+package handler
 
 import (
 	"fmt"
-	"github.com/Digona/src/commands"
+	"github.com/Digona/commands/dispatch"
 	"github.com/bwmarrin/discordgo"
 )
 
-var discordHandlers = []interface{} {
+var discordHandlers = []interface{}{
 	onBotReady,
-	commands.OnMessageCreated,
+	dispatch.OnMessageCreated,
 }
 
 func RegisterHandler(session *discordgo.Session) {
@@ -20,5 +20,5 @@ func RegisterHandler(session *discordgo.Session) {
 }
 
 func onBotReady(session *discordgo.Session, ready *discordgo.Ready) {
-	fmt.Printf("Digona has been succefully initialized and ready to track bug!\n")
+	fmt.Printf("Digona has been succefully initialized and ready!\n")
 }

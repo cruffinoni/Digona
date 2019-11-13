@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/Digona/src/connection"
-	"github.com/Digona/src/digona"
+	"github.com/Digona/connection"
+	"github.com/Digona/digona"
+	"github.com/Digona/handler"
 	"log"
 	"os"
 	"os/signal"
@@ -14,7 +15,7 @@ func main() {
 	if connection.InitBot(&digona.Bot) != nil {
 		return
 	}
-	RegisterHandler(digona.Bot.GetSession())
+	handler.RegisterHandler(digona.Bot.GetSession())
 	err = digona.Bot.GetSession().Open()
 	if err != nil {
 		log.Fatalf("Error occured during the bot connection: %v\n", err.Error())
