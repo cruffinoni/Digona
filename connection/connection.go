@@ -2,7 +2,7 @@ package connection
 
 import (
 	"fmt"
-	"github.com/Digona/src/digona"
+	"github.com/Digona/digona"
 	"github.com/bwmarrin/discordgo"
 	"log"
 	"os"
@@ -22,7 +22,7 @@ func GetFormattedToken() string {
 }
 
 func InitBot(bot *digona.BotData) error {
-	fmt.Printf("Digona (version: %v), initialization...\n", digona.DigonaVersion)
+	fmt.Printf("Digona (version: %v), initialization...\n", digona.BotVersion)
 	session, err := discordgo.New(GetFormattedToken())
 	if err != nil {
 		log.Fatalf("An error occured at the bot creation: %v\n", err.Error())

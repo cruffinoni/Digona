@@ -1,17 +1,12 @@
-package commands
+package dispatch
 
 import (
 	"fmt"
-	"github.com/Digona/src/digona"
+	"github.com/Digona/commands"
+	"github.com/Digona/digona"
 	"github.com/bwmarrin/discordgo"
 	"log"
 )
-
-type commandHandler func(*MessageParser) error
-
-var userCommands = map[string] commandHandler {
-	"delete": redirectDelete,
-}
 
 func OnMessageCreated(session *discordgo.Session, message *discordgo.MessageCreate) {
 	if message.Author.ID == digona.Bot.GetID() {
@@ -21,19 +16,23 @@ func OnMessageCreated(session *discordgo.Session, message *discordgo.MessageCrea
 	//fmt.Printf("Message: '%v'\n", message.Content)
 	//fmt.Printf("Mentions role: '%v'\n", message.MentionRoles)
 	//fmt.Printf("Mentions: '%v'\n", message.Mentions)
-	parser := New(message)
+	if message.ChannelID != "550772992615907328" {
+		fmt.Printf("I'm not allowed to read in this channel.\n")
+		return
+	}
+	newParser := commands.New(message)
 	//fmt.Printf("The current session: %v\n")
-	if !parser.isMentioned {
+	if !newParser.IsBotMentioned() {
 		fmt.Printf("The author might not talk to me.\n")
 		return
 	}
-	if parser.Command == "" {
-		_ = digona.Bot.DisplayError(parser.channel, "Je n'ai pas compris! :/\n")
+	if newParser.GetOriginalCommand() == "" {
+		_ = digona.Bot.DisplayError(newParser.GetChannelId(), "Aucune commande n'a été détectée! :/\n")
 		return
 	}
-	fmt.Printf("Command '%v' detected with args: '%v'\n", parser.Command, parser.args)
-	if err := parser.handler(parser); err != nil {
-		log.Printf("An error occured during executing command '%v' with error '%v'\n", parser.Command, err.Error())
+	fmt.Printf("command '%v' detected with args: '%v'\n", newParser.GetOriginalCommand(), newParser.GetArguments())
+	if err := newParser.Handler(newParser); err != nil {
+		log.Printf("An error occured during executing command '%v' with error '%v'\n", newParser.GetOriginalCommand(), err.Error())
 	}
 	//_, err := session.ChannelMessageSend(message.ChannelID, "Mentions done =>" + message.Mentions[0].String())
 	//if err != nil {
