@@ -22,7 +22,6 @@ const BotVersion = "0.0.3"
 
 func (bot *BotData) RetrieveInfo() (err error) {
 	bot.data, err = bot.session.User("@me")
-	//fmt.Printf("a: '%#+v' & %v\n", bot.data, err)
 	if err != nil {
 		return err
 	}
@@ -30,7 +29,6 @@ func (bot *BotData) RetrieveInfo() (err error) {
 	if guildId != "" {
 		bot.guild, err = bot.session.Guild(guildId)
 	}
-	//log.Printf("Infos: %+v / %+v\n", bot.data, bot.guild)
 	return err
 }
 

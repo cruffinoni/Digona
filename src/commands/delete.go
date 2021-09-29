@@ -65,7 +65,6 @@ func redirectDelete(parser *MessageParser) error {
 		skeleton.Bot.SendMessage(parser.GetChannelId(), fmt.Sprintf("Je ne peux supprimer qu'entre %v et %v messages à la fois.", minAmountDeleteMsg, maxAmountDeleteMsg-1))
 		return nil
 	}
-	fmt.Printf("So: count: %v & tagged? %v\n", count, parser.IsTaggingHimself())
 	if parser.IsTaggingHimself() {
 		allMessages, err := skeleton.Bot.GetSession().ChannelMessages(parser.GetChannelId(), maxAmountDeleteMsg, "", "", parser.GetDiscordMessage().ID)
 		if err != nil {
