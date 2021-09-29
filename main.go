@@ -1,30 +1,19 @@
 package main
 
 import (
-	"github.com/Digona/connection"
-	"github.com/Digona/digona"
-	"github.com/Digona/handler"
-	"log"
+	"github.com/cruffinoni/Digona/src/digona"
+	"github.com/cruffinoni/Digona/src/digona/skeleton"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
 func main() {
-	var err error
-	if connection.InitBot(&digona.Bot) != nil {
-		return
-	}
-	handler.RegisterHandler(digona.Bot.GetSession())
-	err = digona.Bot.GetSession().Open()
-	if err != nil {
-		log.Fatalf("Error occured during the bot connection: %v\n", err.Error())
-	}
+	digona.Init(&skeleton.Bot)
 	botHandler := make(chan os.Signal, 1)
 	signal.Notify(botHandler, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-botHandler
-	err = digona.Bot.GetSession().Close()
-	if err != nil {
-		log.Fatalf("Error occured during the bot deconnection: %v\n", err.Error())
+	if err := skeleton.Bot.GetSession().Close(); err != nil {
+		skeleton.Bot.Fatalf("Error occurred during the bot disconnection: %v\n", err.Error())
 	}
 }

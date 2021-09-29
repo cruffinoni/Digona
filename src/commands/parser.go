@@ -1,8 +1,9 @@
 package commands
 
 import (
-	"github.com/Digona/digona"
 	"github.com/bwmarrin/discordgo"
+	"github.com/cruffinoni/Digona/src/digona/skeleton"
+	"github.com/cruffinoni/Digona/src/logger"
 	"strings"
 )
 
@@ -10,32 +11,36 @@ type CommandHandler func(*MessageParser) error
 
 type MessageParser struct {
 	command     string
+	author      *discordgo.User
 	channel     string
 	args        []string
 	Handler     CommandHandler
 	isMentioned bool
-	message     *discordgo.Message
-}
-
-var commandsListing = map[string]CommandHandler{
-	"delete":  RedirectDelete,
-	"players": ShowMostPlayedChamp,
+	message *discordgo.Message
+	logger  logger.Logger
 }
 
 func checkIsBotMentioned(tab []*discordgo.User) bool {
 	for _, user := range tab {
-		if user.ID == digona.Bot.GetID() {
+		if user.ID == skeleton.Bot.GetID() {
 			return true
 		}
 	}
 	return false
 }
 
-func New(message *discordgo.MessageCreate) (parser *MessageParser) {
+var commandsListing = map[string]CommandHandler{
+	"delete": redirectDelete,
+	"react":  Role,
+}
+
+func New(message *discordgo.MessageCreate, logger logger.Logger) (parser *MessageParser) {
 	parser = &MessageParser{
 		message:     message.Message,
 		channel:     message.ChannelID,
+		author:      message.Author,
 		isMentioned: checkIsBotMentioned(message.Mentions),
+		logger:      logger,
 	}
 	if !checkIsBotMentioned(message.Mentions) {
 		return
@@ -47,7 +52,7 @@ func New(message *discordgo.MessageCreate) (parser *MessageParser) {
 			parser.Handler = function
 			parser.command = word
 			for j, realContent := range msgContent {
-				if j != i && realContent != digona.Bot.GetMention() {
+				if j != i && realContent != skeleton.Bot.GetMention() && realContent != "" {
 					parser.args = append(parser.args, realContent)
 				}
 			}
