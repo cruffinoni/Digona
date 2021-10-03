@@ -16,8 +16,9 @@ type MessageParser struct {
 	args        []string
 	Handler     CommandHandler
 	isMentioned bool
-	message *discordgo.Message
-	logger  logger.Logger
+	message     *discordgo.Message
+	guildId     string
+	logger      logger.Logger
 }
 
 func checkIsBotMentioned(tab []*discordgo.User) bool {
@@ -30,8 +31,10 @@ func checkIsBotMentioned(tab []*discordgo.User) bool {
 }
 
 var commandsListing = map[string]CommandHandler{
-	"delete": redirectDelete,
-	"react":  Role,
+	"delete":       redirectDelete,
+	"react":        Role,
+	"qr-code":      GenerateQrCode,
+	"default-role": SetDefaultRole,
 }
 
 func New(message *discordgo.MessageCreate, logger logger.Logger) (parser *MessageParser) {
@@ -41,6 +44,7 @@ func New(message *discordgo.MessageCreate, logger logger.Logger) (parser *Messag
 		author:      message.Author,
 		isMentioned: checkIsBotMentioned(message.Mentions),
 		logger:      logger,
+		guildId:     message.GuildID,
 	}
 	if !checkIsBotMentioned(message.Mentions) {
 		return

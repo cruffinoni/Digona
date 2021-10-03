@@ -3,7 +3,6 @@ package commands
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
-	"math/rand"
 	"regexp"
 	"time"
 )
@@ -54,13 +53,10 @@ func formatMessage(args []string) string {
 func setupMessageAndReactions(parser *MessageParser, messageContent string, reactions map[string]string) error {
 	message, err := skeleton.Bot.GetSession().ChannelMessageSendEmbed(parser.channel, &discordgo.MessageEmbed{
 		Type:        discordgo.EmbedTypeRich,
-		Title:       "React with the message",
+		Title:       "Réagissez à ce message",
 		Description: messageContent,
 		Timestamp:   time.Now().Format(time.RFC3339),
-		Color:       rand.Int()%255 | rand.Int()%255<<8 | rand.Int()%255<<16,
-		Author: &discordgo.MessageEmbedAuthor{
-			Name: parser.author.Username,
-		},
+		Color:       skeleton.GenerateRandomMessageColor(),
 	})
 	reactMessages[message.ID] = reactions
 	if err != nil {
@@ -85,12 +81,12 @@ func Role(parser *MessageParser) error {
 		skeleton.Bot.SendMessage(parser.channel, "Format de la command: [CMD] [ROLE] [REACTION] [MESSAGE]")
 		return nil
 	}
-	customEmojis, err := skeleton.Bot.GetSession().GuildEmojis(skeleton.Bot.GetGuildId())
+	customEmojis, err := skeleton.Bot.GetSession().GuildEmojis(parser.guildId)
 	if err != nil {
 		skeleton.Bot.SendMessage(parser.channel, "Je ne peux pas récupérer les roles de ce serveur")
 		return err
 	}
-	roles, err := skeleton.Bot.GetSession().GuildRoles(skeleton.Bot.GetGuildId())
+	roles, err := skeleton.Bot.GetSession().GuildRoles(parser.guildId)
 	if err != nil {
 		skeleton.Bot.SendMessage(parser.channel, "Je ne peux pas récupérer les roles de ce serveur")
 		return err

@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/cruffinoni/Digona/src/logger"
-	"os"
 	"time"
 )
 
 type BotData struct {
 	session   *discordgo.Session
 	data      *discordgo.User
-	guild     *discordgo.Guild
+	guild     map[string]*discordgo.Guild
 	startTime time.Time
 	logger.Logger
 }
@@ -25,11 +24,12 @@ func (bot *BotData) RetrieveInfo() (err error) {
 	if err != nil {
 		return err
 	}
-	guildId := os.Getenv("GUILD_ID")
-	if guildId != "" {
-		bot.guild, err = bot.session.Guild(guildId)
-	}
+	bot.guild = make(map[string]*discordgo.Guild)
 	return err
+}
+
+func (bot *BotData) RegisterGuild(guild *discordgo.Guild) {
+	bot.guild[guild.ID] = guild
 }
 
 func (bot BotData) GetSession() *discordgo.Session {
@@ -47,12 +47,21 @@ func (bot BotData) GetID() string {
 	return bot.data.ID
 }
 
+func (bot BotData) GetUser() *discordgo.User {
+	return bot.data
+}
+
 func (bot BotData) GetMention() string {
 	return fmt.Sprintf("<@!%v>", bot.data.ID)
 }
 
-func (bot BotData) GetGuildId() string {
-	return bot.guild.ID
+func (bot BotData) GetGuildDataFromId(guildId string) *discordgo.Guild {
+	if data, ok := bot.guild[guildId]; !ok {
+		bot.Errorf("Can't get data from guild because it's an invalid id: %v\n", guildId)
+		return nil
+	} else {
+		return data
+	}
 }
 
 func (bot *BotData) StartTime() {

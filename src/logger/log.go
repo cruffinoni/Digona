@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Logger struct {}
+type Logger struct{}
 
 func (Logger) Logf(msg string, format ...interface{}) {
 	msg = time.Now().Format(time.RFC3339) + " " + msg

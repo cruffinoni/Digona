@@ -17,8 +17,8 @@ func OnUserReact(_ *discordgo.Session, message *discordgo.MessageReactionAdd) {
 		reactionId = message.Emoji.Name
 	}
 	if roleId := commands.GetRoleFromMessageReaction(message.MessageID, reactionId); roleId != "" {
-		if err := skeleton.Bot.GetSession().GuildMemberRoleAdd(skeleton.Bot.GetGuildId(), message.UserID, roleId); err != nil {
-			skeleton.Bot.Errorf("An error occured while setting the role '%v' to '%v': %v\n", roleId, message.UserID, err)
+		if err := skeleton.Bot.GetSession().GuildMemberRoleAdd(message.GuildID, message.UserID, roleId); err != nil {
+			skeleton.Bot.Errorf("An error occurred while setting the role '%v' to '%v': %v\n", roleId, message.UserID, err)
 		}
 	}
 }
@@ -34,8 +34,8 @@ func OnUserRemoveReact(_ *discordgo.Session, message *discordgo.MessageReactionR
 		reactionId = message.Emoji.Name
 	}
 	if roleId := commands.GetRoleFromMessageReaction(message.MessageID, reactionId); roleId != "" {
-		if err := skeleton.Bot.GetSession().GuildMemberRoleRemove(skeleton.Bot.GetGuildId(), message.UserID, roleId); err != nil {
-			skeleton.Bot.Errorf("An error occured while removing the role '%v' to '%v': %v\n", roleId, message.UserID, err)
+		if err := skeleton.Bot.GetSession().GuildMemberRoleRemove(message.GuildID, message.UserID, roleId); err != nil {
+			skeleton.Bot.Errorf("An error occurred while removing the role '%v' to '%v': %v\n", roleId, message.UserID, err)
 		}
 	}
 }

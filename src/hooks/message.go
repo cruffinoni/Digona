@@ -28,6 +28,8 @@ func OnMessageCreated(_ *discordgo.Session, message *discordgo.MessageCreate) {
 	}
 	//logger.Logf("command '%v' detected with args: '%v'\n", newParser.GetOriginalCommand(), newParser.GetArguments())
 	if err := newParser.Handler(newParser); err != nil {
+		skeleton.Bot.SendInternalServerErrorMessage(message.ChannelID)
 		log.Errorf("An error occured during executing command '%v' with error '%v'\n", newParser.GetOriginalCommand(), err.Error())
 	}
+	skeleton.Bot.SendInternalServerErrorMessageTimeout(message.ChannelID)
 }
