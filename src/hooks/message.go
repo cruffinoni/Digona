@@ -31,5 +31,4 @@ func OnMessageCreated(_ *discordgo.Session, message *discordgo.MessageCreate) {
 		skeleton.Bot.SendInternalServerErrorMessage(message.ChannelID)
 		log.Errorf("An error occured during executing command '%v' with error '%v'\n", newParser.GetOriginalCommand(), err.Error())
 	}
-	skeleton.Bot.SendInternalServerErrorMessageTimeout(message.ChannelID)
 }

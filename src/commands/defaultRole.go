@@ -44,7 +44,7 @@ func SetDefaultRole(msg *MessageParser) error {
 			return err
 		} else if matched {
 			if role = retrieveRole(roles, i); role == nil {
-				skeleton.Bot.SendMessage(msg.channel, "Impossible de trouver le rôle: '"+i+"'")
+				skeleton.Bot.SendMessage(msg.channel, fmt.Sprintf("Impossible de trouver le rôle: '%v'", i))
 				return err
 			}
 			break
@@ -55,6 +55,7 @@ func SetDefaultRole(msg *MessageParser) error {
 		return err
 	}
 	if err = attributeRoleToMembers(role, members, msg.guildId); err != nil {
+		skeleton.Bot.SendInternalServerErrorMessage(msg.guildId)
 		return err
 	}
 	return deleteLastMessage(msg.channel, msg.message.ID)
