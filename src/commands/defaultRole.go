@@ -50,13 +50,22 @@ func SetDefaultRole(msg *MessageParser) error {
 			break
 		}
 	}
+	if role == nil {
+		skeleton.Bot.SendDelayedMessage(msg.channel, "Aucun role n'a été trouvé dans le message.")
+		return nil
+	}
 	members, err := getAllMembersWithoutRole(msg.guildId)
 	if err != nil {
 		return err
+	}
+	if len(members) == 0 {
+		skeleton.Bot.SendMessage(msg.channel, "Aucun utilisateur valide n'a été trouvé")
+		return deleteLastMessage(msg.channel, msg.message.ID)
 	}
 	if err = attributeRoleToMembers(role, members, msg.guildId); err != nil {
 		skeleton.Bot.SendInternalServerErrorMessage(msg.guildId)
 		return err
 	}
+	skeleton.Bot.SendMessage(msg.channel, fmt.Sprintf("J'ai ajouté le rôle %v à %v personne(s)", role.Mention(), len(members)))
 	return deleteLastMessage(msg.channel, msg.message.ID)
 }

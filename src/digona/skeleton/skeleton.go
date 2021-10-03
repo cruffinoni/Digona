@@ -32,6 +32,10 @@ func (bot *BotData) RegisterGuild(guild *discordgo.Guild) {
 	bot.guild[guild.ID] = guild
 }
 
+func (bot *BotData) RemoveGuild(guildId string) {
+	delete(bot.guild, guildId)
+}
+
 func (bot BotData) GetSession() *discordgo.Session {
 	return bot.session
 }

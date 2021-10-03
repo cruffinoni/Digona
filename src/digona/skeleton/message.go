@@ -6,17 +6,20 @@ import (
 	"time"
 )
 
-const timeOutSec = 10
+const TimeoutSec = 10
 
-func (bot BotData) sendMessageToChannel(channelId, messageContent string, delayed bool) {
+func (bot BotData) sendMessageToChannel(channelId, messageContent string, delayed bool, color int) {
 	var footerText string
 	if delayed {
-		footerText = fmt.Sprintf("Ce message sera supprimé dans %v sec.", timeOutSec)
+		footerText = fmt.Sprintf("Ce message sera supprimé dans %v sec.", TimeoutSec)
+	}
+	if color == 0 {
+		color = GenerateRandomMessageColor()
 	}
 	if message, err := bot.session.ChannelMessageSendEmbed(channelId, &discordgo.MessageEmbed{
 		Type:        discordgo.EmbedTypeRich,
 		Description: messageContent,
-		Color:       GenerateRandomMessageColor(),
+		Color:       color,
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: footerText,
 		},
@@ -24,7 +27,7 @@ func (bot BotData) sendMessageToChannel(channelId, messageContent string, delaye
 		bot.Errorf("Can't display a message into the channel '%v'. Error: '%v'\n", channelId, err)
 	} else if delayed {
 		go func() {
-			time.Sleep(time.Second * timeOutSec)
+			time.Sleep(time.Second * TimeoutSec)
 			if err = bot.session.ChannelMessageDelete(channelId, message.ID); err != nil {
 				bot.Errorf("Can't remove a message previously send. Error: '%v'\n", channelId, err)
 			}
@@ -33,17 +36,17 @@ func (bot BotData) sendMessageToChannel(channelId, messageContent string, delaye
 }
 
 func (bot BotData) SendMessage(channelId, message string) {
-	bot.sendMessageToChannel(channelId, message, false)
+	bot.sendMessageToChannel(channelId, message, false, 0)
 }
 
 func (bot BotData) SendInternalServerErrorMessage(channelId string) {
-	bot.sendMessageToChannel(channelId, "Une erreur s'est produite, réessayez plus tard", false)
+	bot.sendMessageToChannel(channelId, "Une erreur s'est produite, réessayez plus tard", false, 15548997)
 }
 
-func (bot BotData) SendInternalServerErrorMessageTimeout(channelId string) {
-	bot.sendMessageToChannel(channelId, "Une erreur s'est produite, réessayez plus tard", true)
+func (bot BotData) SendDelayedInternalServerErrorMessage(channelId string) {
+	bot.sendMessageToChannel(channelId, "Une erreur s'est produite, réessayez plus tard", true, 15548997)
 }
 
 func (bot BotData) SendDelayedMessage(channelId, message string) {
-	bot.sendMessageToChannel(channelId, message, true)
+	bot.sendMessageToChannel(channelId, message, true, 0)
 }
