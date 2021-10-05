@@ -3,11 +3,11 @@ package config
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/cruffinoni/Digona/src/digona/version"
 	"github.com/cruffinoni/Digona/src/logger"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 var (
@@ -70,7 +70,7 @@ func Load() {
 		log.FatalMsg(err)
 	}
 	for _, file := range files {
-		if file.IsDir() {
+		if file.IsDir() || !strings.Contains(file.Name(), ".json") {
 			continue
 		}
 		fileContent, err := os.Open("./config/" + file.Name())
@@ -88,5 +88,5 @@ func Load() {
 		}
 		configFiles[guildId] = &config
 	}
-	fmt.Printf("%v config files loaded\n", len(files))
+	log.Logf("%v config files loaded\n", len(configFiles))
 }

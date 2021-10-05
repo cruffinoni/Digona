@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/cruffinoni/Digona/src/commands/parser"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
 	"strconv"
 )
@@ -13,7 +14,7 @@ const (
 	maxAmountDeleteMsg = 100
 )
 
-func deleteUserMessages(parser *MessageParser, channelMessage []*discordgo.Message, maxMessage int) error {
+func deleteUserMessages(parser *parser.MessageParser, channelMessage []*discordgo.Message, maxMessage int) error {
 	var deletedMsg int
 	for count, message := range channelMessage {
 		if message.Author.Username == parser.GetDiscordMessage().Author.Username {
@@ -31,7 +32,7 @@ func deleteUserMessages(parser *MessageParser, channelMessage []*discordgo.Messa
 	return nil
 }
 
-func deleteLastMessages(parser *MessageParser, channelMessage []*discordgo.Message) error {
+func deleteLastMessages(parser *parser.MessageParser, channelMessage []*discordgo.Message) error {
 	for count, eachMessage := range channelMessage {
 		err := skeleton.Bot.GetSession().ChannelMessageDelete(parser.GetChannelId(), eachMessage.ID)
 		if err != nil {
@@ -51,7 +52,7 @@ func getNumberOfMessageToDelete(message []string) (int, error) {
 	return 0, errors.New("no valid arg found")
 }
 
-func redirectDelete(parser *MessageParser) error {
+func RedirectDelete(parser *parser.MessageParser) error {
 	if len(parser.GetArguments()) == 0 {
 		skeleton.Bot.SendMessage(parser.GetChannelId(), "Tu dois entrer le nombre de message à supprimer!")
 		return nil

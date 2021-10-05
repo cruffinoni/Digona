@@ -1,4 +1,4 @@
-package commands
+package parser
 
 import (
 	"github.com/bwmarrin/discordgo"
@@ -7,14 +7,11 @@ import (
 	"strings"
 )
 
-type CommandHandler func(*MessageParser) error
-
 type MessageParser struct {
 	command     string
 	author      *discordgo.User
 	channel     string
 	args        []string
-	Handler     CommandHandler
 	isMentioned bool
 	message     *discordgo.Message
 	guildId     string
@@ -28,13 +25,6 @@ func checkIsBotMentioned(tab []*discordgo.User) bool {
 		}
 	}
 	return false
-}
-
-var commandsListing = map[string]CommandHandler{
-	"delete":       redirectDelete,
-	"react":        Role,
-	"qr-code":      GenerateQrCode,
-	"default-role": SetDefaultRole,
 }
 
 func New(message *discordgo.MessageCreate, logger logger.Logger) (parser *MessageParser) {
@@ -51,17 +41,20 @@ func New(message *discordgo.MessageCreate, logger logger.Logger) (parser *Messag
 	}
 	parser.isMentioned = true
 	msgContent := strings.Split(message.Content, " ")
-	for i, word := range msgContent {
-		if function, exists := commandsListing[strings.ToLower(word)]; exists {
-			parser.Handler = function
-			parser.command = word
-			for j, realContent := range msgContent {
-				if j != i && realContent != skeleton.Bot.GetMention() && realContent != "" {
-					parser.args = append(parser.args, realContent)
-				}
-			}
-			return
+	for _, word := range msgContent {
+		if word != skeleton.Bot.GetMention() && word != "" {
+			parser.args = append(parser.args, word)
 		}
+		//if function, exists := commandsListing[strings.ToLower(word)]; exists {
+		//	parser.Handler = function
+		//	parser.command = word
+		//	for j, realContent := range msgContent {
+		//		if j != i && realContent != skeleton.Bot.GetMention() && realContent != "" {
+		//			parser.args = append(parser.args, realContent)
+		//		}
+		//	}
+		//	return
+		//}
 	}
 	return
 }
@@ -75,22 +68,39 @@ func (parser *MessageParser) IsTaggingHimself() bool {
 	return false
 }
 
-func (parser *MessageParser) GetArguments() []string {
+func (parser *MessageParser) RemoveArgument(target string) {
+	for i, j := range parser.args {
+		if j == target {
+			parser.args[i] = parser.args[0]
+			parser.args = parser.args[1:]
+		}
+	}
+}
+
+func (parser MessageParser) GetArguments() []string {
 	return parser.args
 }
 
-func (parser *MessageParser) GetChannelId() string {
+func (parser MessageParser) GetChannelId() string {
 	return parser.channel
 }
 
-func (parser *MessageParser) GetDiscordMessage() *discordgo.Message {
+func (parser MessageParser) GetGuildId() string {
+	return parser.guildId
+}
+
+func (parser MessageParser) GetDiscordMessage() *discordgo.Message {
 	return parser.message
 }
 
-func (parser *MessageParser) IsBotMentioned() bool {
+func (parser MessageParser) IsBotMentioned() bool {
 	return parser.isMentioned
 }
 
-func (parser *MessageParser) GetOriginalCommand() string {
+func (parser MessageParser) GetOriginalCommand() string {
 	return parser.command
+}
+
+func (parser MessageParser) GetDiscordAuthor() *discordgo.User {
+	return parser.author
 }

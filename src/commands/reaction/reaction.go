@@ -1,11 +1,14 @@
-package commands
+package reaction
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/cruffinoni/Digona/src/commands/parser"
 	"github.com/cruffinoni/Digona/src/digona/config"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
 	"github.com/cruffinoni/Digona/src/discord"
 	"regexp"
+	"strings"
 )
 
 var (
@@ -30,11 +33,19 @@ func formatMessage(args []string) string {
 	return message
 }
 
-func setupMessageAndReactions(parser *MessageParser, messageContent string, reactions map[string]string) error {
-	message, err := skeleton.Bot.GetSession().ChannelMessageSendEmbed(parser.channel, &discordgo.MessageEmbed{
+func setupMessageAndReactions(parser *parser.MessageParser, messageContent string, reactions map[string]string) error {
+	var description string
+	for emoji, role := range reactions {
+		if strings.Contains(emoji, ":") {
+			description += fmt.Sprintf("<:%v> ⟹ <@&%v>\n", emoji, role)
+		} else {
+			description += fmt.Sprintf("%v ⟹ <@&%v>\n", emoji, role)
+		}
+	}
+	message, err := skeleton.Bot.GetSession().ChannelMessageSendEmbed(parser.GetChannelId(), &discordgo.MessageEmbed{
 		Type:        discordgo.EmbedTypeRich,
 		Title:       messageContent,
-		Description: "Réagissez à ce message pour vous attribuez le rôle associé",
+		Description: description,
 		Color:       skeleton.GenerateRandomMessageColor(),
 	})
 	reactMessages[message.ID] = reactions
@@ -43,32 +54,32 @@ func setupMessageAndReactions(parser *MessageParser, messageContent string, reac
 		return err
 	}
 	for emoji := range reactions {
-		if err = skeleton.Bot.GetSession().MessageReactionAdd(parser.channel, message.ID, emoji); err != nil {
-			secondErr := skeleton.Bot.GetSession().ChannelMessageDelete(parser.channel, message.ID)
+		if err = skeleton.Bot.GetSession().MessageReactionAdd(parser.GetChannelId(), message.ID, emoji); err != nil {
+			secondErr := skeleton.Bot.GetSession().ChannelMessageDelete(parser.GetChannelId(), message.ID)
 			if secondErr != nil {
 				skeleton.Bot.Errorf("Cannot delete message id '%v': %v\n", message.ID, secondErr)
 			}
-			skeleton.Bot.SendMessage(parser.channel, "Une erreur est survenue, réessayez plus tard")
+			skeleton.Bot.SendMessage(parser.GetChannelId(), "Une erreur est survenue, réessayez plus tard")
 			return err
 		}
 	}
-	config.UpdateReactionMessageId(parser.guildId, message.ID)
+	config.UpdateReactionMessageId(parser.GetGuildId(), message.ID)
 	return nil
 }
 
-func Role(parser *MessageParser) error {
-	if len(parser.args) < 3 {
-		skeleton.Bot.SendMessage(parser.channel, "Format de la command: [CMD] [ROLE] [REACTION] [MESSAGE]")
+func Role(parser *parser.MessageParser) error {
+	if len(parser.GetArguments()) < 3 {
+		skeleton.Bot.SendMessage(parser.GetChannelId(), "Format de la command: [CMD] [ROLE] [REACTION] [MESSAGE]")
 		return nil
 	}
-	customEmojis, err := skeleton.Bot.GetSession().GuildEmojis(parser.guildId)
+	customEmojis, err := skeleton.Bot.GetSession().GuildEmojis(parser.GetGuildId())
 	if err != nil {
-		skeleton.Bot.SendMessage(parser.channel, "Je ne peux pas récupérer les roles de ce serveur")
+		skeleton.Bot.SendMessage(parser.GetChannelId(), "Je ne peux pas récupérer les roles de ce serveur")
 		return err
 	}
-	roles, err := skeleton.Bot.GetSession().GuildRoles(parser.guildId)
+	roles, err := skeleton.Bot.GetSession().GuildRoles(parser.GetGuildId())
 	if err != nil {
-		skeleton.Bot.SendMessage(parser.channel, "Je ne peux pas récupérer les roles de ce serveur")
+		skeleton.Bot.SendMessage(parser.GetChannelId(), "Je ne peux pas récupérer les roles de ce serveur")
 		return err
 	}
 
@@ -77,17 +88,17 @@ func Role(parser *MessageParser) error {
 	var messageContent string
 	listedReactions := make(map[string]string)
 
-	for k, i := range parser.args {
+	for k, i := range parser.GetArguments() {
 		if currentRole == nil {
 			if matched, err := regexp.Match("<@&\\d{18}>", []byte(i)); err != nil {
-				skeleton.Bot.SendMessage(parser.channel, "Une erreur s'est produite, réessayez plus tard")
+				skeleton.Bot.SendMessage(parser.GetChannelId(), "Une erreur s'est produite, réessayez plus tard")
 				return err
 			} else if !matched {
-				messageContent = formatMessage(parser.args[k:])
+				messageContent = formatMessage(parser.GetArguments()[k:])
 				break
 			}
 			if currentRole = discord.FindRoleFromRawRoleId(roles, i); currentRole == nil {
-				skeleton.Bot.SendMessage(parser.channel, "Impossible de trouver le rôle: '"+i+"'")
+				skeleton.Bot.SendMessage(parser.GetChannelId(), "Impossible de trouver le rôle: '"+i+"'")
 				return err
 			}
 		} else {
@@ -102,7 +113,7 @@ func Role(parser *MessageParser) error {
 		}
 	}
 	if currentRole != nil || currentEmojiId != "" {
-		skeleton.Bot.SendMessage(parser.channel, "Le nombre d'argument est incorrect. Est-ce que le message de fin manque t-il?")
+		skeleton.Bot.SendMessage(parser.GetChannelId(), "Le nombre d'argument est incorrect. Est-ce que le message de fin manque t-il?")
 		return nil
 	}
 	return setupMessageAndReactions(parser, messageContent, listedReactions)

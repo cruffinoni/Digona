@@ -1,31 +1,32 @@
-package commands
+package privateMessage
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/cruffinoni/Digona/src/commands/parser"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
 	"github.com/cruffinoni/Digona/src/discord"
 	"time"
 )
 
-func findChannelFromArgs(msg *MessageParser) (*discordgo.Channel, error) {
-	channelId, err := discord.FindChanelFromArgs(msg.args)
+func findChannelFromArgs(msg *parser.MessageParser) (*discordgo.Channel, error) {
+	channelId, err := discord.FindChanelFromArgs(msg.GetArguments())
 	if err != nil {
-		skeleton.Bot.Logf("Error from discord %+v\n", msg.args)
-		skeleton.Bot.SendInternalServerErrorMessage(msg.channel)
+		skeleton.Bot.Logf("Error from discord %+v\n", msg.GetArguments())
+		skeleton.Bot.SendInternalServerErrorMessage(msg.GetChannelId())
 		return nil, err
 	} else if channelId == "" {
-		skeleton.Bot.Logf("No channel id detected from %+v\n", msg.args)
-		skeleton.Bot.SendMessage(msg.channel, "Aucun channel n'a été détecté")
+		skeleton.Bot.Logf("No channel id detected from %+v\n", msg.GetArguments())
+		skeleton.Bot.SendMessage(msg.GetChannelId(), "Aucun channel n'a été détecté")
 		return nil, nil
 	}
 	channelData, err := discord.GetChannelDataFromRawId(channelId)
 	if err != nil {
 		skeleton.Bot.Logf("Error while getting channel '%+v'\n", err)
 		if discord.IsMissingAccessError(err) {
-			skeleton.Bot.SendMessage(msg.channel, "Je n'ai pas accés à ce channel")
+			skeleton.Bot.SendMessage(msg.GetChannelId(), "Je n'ai pas accés à ce channel")
 			return nil, err
 		}
-		skeleton.Bot.SendInternalServerErrorMessage(msg.channel)
+		skeleton.Bot.SendInternalServerErrorMessage(msg.GetChannelId())
 		return nil, err
 	}
 	return channelData, nil
@@ -64,18 +65,14 @@ func generateInvitation(channelId, guildId string) (*discordgo.Invite, error) {
 		return nil, err
 	}
 	if invite, err := skeleton.Bot.GetSession().ChannelInviteCreate(channelId, discordgo.Invite{
-		Guild:                    skeleton.Bot.GetGuildDataFromId(guildId),
-		Channel:                  channel,
-		Inviter:                  skeleton.Bot.GetUser(),
-		CreatedAt:                discordgo.Timestamp(time.Now().String()),
-		MaxAge:                   0,
-		Revoked:                  false,
-		Temporary:                false,
-		Unique:                   false,
-		TargetUser:               nil,
-		TargetUserType:           0,
-		ApproximatePresenceCount: 0,
-		ApproximateMemberCount:   0,
+		Guild:     skeleton.Bot.GetGuildDataFromId(guildId),
+		Channel:   channel,
+		Inviter:   skeleton.Bot.GetUser(),
+		CreatedAt: discordgo.Timestamp(time.Now().String()),
+		MaxAge:    0,
+		Revoked:   false,
+		Temporary: false,
+		Unique:    true,
 	}); err != nil {
 		return nil, err
 	} else {
@@ -83,19 +80,19 @@ func generateInvitation(channelId, guildId string) (*discordgo.Invite, error) {
 	}
 }
 
-func GenerateQrCode(msg *MessageParser) error {
+func GenerateQrCode(msg *parser.MessageParser) error {
 	channel, err := findChannelFromArgs(msg)
 	if err != nil {
 		return err
 	} else if channel == nil {
 		return nil
 	}
-	invitation, err := generateInvitation(channel.ID, msg.guildId)
+	invitation, err := generateInvitation(channel.ID, msg.GetGuildId())
 	if err != nil {
 		return err
 	}
-	if err = SendDMToAuthor(invitation.Code, channel.Mention(), msg.author.ID, msg.channel); err != nil {
+	if err = SendDMToAuthor(invitation.Code, channel.Mention(), msg.GetDiscordAuthor().ID, msg.GetChannelId()); err != nil {
 		return err
 	}
-	return discord.DeleteMessage(msg.channel, msg.message.ID)
+	return discord.DeleteMessage(msg.GetChannelId(), msg.GetDiscordMessage().ID)
 }
