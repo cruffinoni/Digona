@@ -17,8 +17,6 @@ type BotData struct {
 
 var Bot BotData
 
-const BotVersion = "0.0.5"
-
 func (bot *BotData) RetrieveInfo() (err error) {
 	bot.data, err = bot.session.User("@me")
 	if err != nil {

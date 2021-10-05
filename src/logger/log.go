@@ -30,6 +30,9 @@ func (Logger) Errorf(msg string, fmt ...interface{}) {
 func (Logger) Fatal() {
 	log.Panic()
 }
+func (Logger) FatalMsg(fmt ...interface{}) {
+	log.Fatal(fmt...)
+}
 
 func (Logger) Fatalf(msg string, fmt ...interface{}) {
 	log.Fatalf(msg, fmt...)

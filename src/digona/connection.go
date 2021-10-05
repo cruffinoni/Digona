@@ -3,8 +3,10 @@ package digona
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/cruffinoni/Digona/src/digona/config"
 	"github.com/cruffinoni/Digona/src/digona/handler"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
+	"github.com/cruffinoni/Digona/src/digona/version"
 	"log"
 	"os"
 )
@@ -22,7 +24,7 @@ func GetFormattedToken() string {
 }
 
 func Init(bot *skeleton.BotData) {
-	bot.Logf("Digona (version: %v), initialization...\n", skeleton.BotVersion)
+	bot.Logf("Digona (version: %v), initialization...\n", version.BotVersion)
 	session, err := discordgo.New(GetFormattedToken())
 	if err != nil {
 		bot.Fatalf("An error occurred at the bot creation: %v\n", err.Error())
@@ -38,4 +40,6 @@ func Init(bot *skeleton.BotData) {
 	if err = session.Open(); err != nil {
 		bot.Fatalf("Can't open the session: %v\n", err.Error())
 	}
+	bot.Log("Loading config files...\n")
+	config.Load()
 }

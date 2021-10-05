@@ -24,6 +24,6 @@ func OnMessageCreated(_ *discordgo.Session, message *discordgo.MessageCreate) {
 	}
 	if err := newParser.Handler(newParser); err != nil {
 		skeleton.Bot.SendInternalServerErrorMessage(message.ChannelID)
-		log.Errorf("An error occured during executing command '%v' with error '%v'\n", newParser.GetOriginalCommand(), err.Error())
+		log.Errorf("An error occurred during executing command '%v' with error '%v'\n", newParser.GetOriginalCommand(), err.Error())
 	}
 }

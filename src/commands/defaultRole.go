@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
+	"github.com/cruffinoni/Digona/src/discord"
 	"regexp"
+	"time"
 )
 
 func getAllMembersWithoutRole(guildId string) ([]*discordgo.Member, error) {
@@ -22,11 +24,14 @@ func getAllMembersWithoutRole(guildId string) ([]*discordgo.Member, error) {
 }
 
 func attributeRoleToMembers(role *discordgo.Role, members []*discordgo.Member, guildId string) error {
-	fmt.Printf("There is %v member to attribute a role\n", len(members))
-	for _, i := range members {
+	skeleton.Bot.Logf("There is %v member to attribute a role\n", len(members))
+	for k, i := range members {
 		if err := skeleton.Bot.GetSession().GuildMemberRoleAdd(guildId, i.User.ID, role.ID); err != nil {
 			skeleton.Bot.Errorf("An error occurred while setting the role '%v' to '%v': %v\n", role.Mention(), i.User.ID, err)
 			return err
+		}
+		if k%50 == 0 {
+			time.Sleep(3)
 		}
 	}
 	return nil
@@ -43,7 +48,7 @@ func SetDefaultRole(msg *MessageParser) error {
 		if matched, err := regexp.Match("<@&\\d{18}>", []byte(i)); err != nil {
 			return err
 		} else if matched {
-			if role = retrieveRole(roles, i); role == nil {
+			if role = discord.FindRoleFromRawRoleId(roles, i); role == nil {
 				skeleton.Bot.SendMessage(msg.channel, fmt.Sprintf("Impossible de trouver le rôle: '%v'", i))
 				return err
 			}
@@ -59,13 +64,13 @@ func SetDefaultRole(msg *MessageParser) error {
 		return err
 	}
 	if len(members) == 0 {
-		skeleton.Bot.SendMessage(msg.channel, "Aucun utilisateur valide n'a été trouvé")
-		return deleteLastMessage(msg.channel, msg.message.ID)
+		skeleton.Bot.SendDelayedMessage(msg.channel, "Aucun utilisateur valide n'a été trouvé")
+		return discord.DeleteMessage(msg.channel, msg.message.ID)
 	}
 	if err = attributeRoleToMembers(role, members, msg.guildId); err != nil {
 		skeleton.Bot.SendInternalServerErrorMessage(msg.guildId)
 		return err
 	}
 	skeleton.Bot.SendMessage(msg.channel, fmt.Sprintf("J'ai ajouté le rôle %v à %v personne(s)", role.Mention(), len(members)))
-	return deleteLastMessage(msg.channel, msg.message.ID)
+	return discord.DeleteMessage(msg.channel, msg.message.ID)
 }

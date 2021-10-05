@@ -2,9 +2,10 @@ package commands
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/cruffinoni/Digona/src/digona/config"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
+	"github.com/cruffinoni/Digona/src/discord"
 	"regexp"
-	"time"
 )
 
 var (
@@ -16,27 +17,6 @@ func GetRoleFromMessageReaction(messageId, reactionId string) string {
 		return reactMessages[messageId][reactionId]
 	}
 	return ""
-}
-
-func retrieveRole(roles []*discordgo.Role, reference string) *discordgo.Role {
-	reference = reference[3 : len(reference)-1]
-	for _, r := range roles {
-		if r.ID == reference {
-			return r
-		}
-	}
-	return nil
-}
-
-func retrieveEmoji(customEmojis []*discordgo.Emoji, reference string) *discordgo.Emoji {
-	reference = reference[1 : len(reference)-1]
-	for _, r := range customEmojis {
-		fullRef := ":" + r.Name + ":" + r.ID
-		if fullRef == reference {
-			return r
-		}
-	}
-	return nil
 }
 
 func formatMessage(args []string) string {
@@ -53,9 +33,8 @@ func formatMessage(args []string) string {
 func setupMessageAndReactions(parser *MessageParser, messageContent string, reactions map[string]string) error {
 	message, err := skeleton.Bot.GetSession().ChannelMessageSendEmbed(parser.channel, &discordgo.MessageEmbed{
 		Type:        discordgo.EmbedTypeRich,
-		Title:       "Réagissez à ce message",
-		Description: messageContent,
-		Timestamp:   time.Now().Format(time.RFC3339),
+		Title:       messageContent,
+		Description: "Réagissez à ce message pour vous attribuez le rôle associé",
 		Color:       skeleton.GenerateRandomMessageColor(),
 	})
 	reactMessages[message.ID] = reactions
@@ -73,6 +52,7 @@ func setupMessageAndReactions(parser *MessageParser, messageContent string, reac
 			return err
 		}
 	}
+	config.UpdateReactionMessageId(parser.guildId, message.ID)
 	return nil
 }
 
@@ -106,12 +86,12 @@ func Role(parser *MessageParser) error {
 				messageContent = formatMessage(parser.args[k:])
 				break
 			}
-			if currentRole = retrieveRole(roles, i); currentRole == nil {
+			if currentRole = discord.FindRoleFromRawRoleId(roles, i); currentRole == nil {
 				skeleton.Bot.SendMessage(parser.channel, "Impossible de trouver le rôle: '"+i+"'")
 				return err
 			}
 		} else {
-			if currentCustomEmoji := retrieveEmoji(customEmojis, i); currentCustomEmoji == nil {
+			if currentCustomEmoji := discord.FindEmojiFromRawEmojiId(customEmojis, i); currentCustomEmoji == nil {
 				currentEmojiId = i
 			} else {
 				currentEmojiId = currentCustomEmoji.APIName()
