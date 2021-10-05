@@ -2,21 +2,14 @@ package discord
 
 import "github.com/bwmarrin/discordgo"
 
-func FindRoleFromRawRoleId(roles []*discordgo.Role, reference string) *discordgo.Role {
-	reference = reference[3 : len(reference)-1]
-	for _, r := range roles {
-		if r.ID == reference {
-			return r
-		}
-	}
-	return nil
+func GetRoleFromRawRoleId(roleId string) string {
+	return roleId[3 : len(roleId)-1]
 }
 
-func FindEmojiFromRawEmojiId(customEmojis []*discordgo.Emoji, reference string) *discordgo.Emoji {
-	reference = reference[1 : len(reference)-1]
-	for _, r := range customEmojis {
-		fullRef := ":" + r.Name + ":" + r.ID
-		if fullRef == reference {
+func FindRoleFromRawRoleId(roles []*discordgo.Role, reference string) *discordgo.Role {
+	reference = GetRoleFromRawRoleId(reference)
+	for _, r := range roles {
+		if r.ID == reference {
 			return r
 		}
 	}

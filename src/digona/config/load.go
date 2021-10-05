@@ -16,13 +16,13 @@ var (
 )
 
 type Configuration struct {
-	WelcomeChannel  string `json:"welcome_channel"`
-	ReactionMessage string `json:"reaction_message"`
+	WelcomeChannel string         `json:"welcome_channel"`
+	Reaction       ReactionConfig `json:"reaction"`
 }
 
 type ConfigurationFile struct {
-	Version       string `json:"version"`
-	Configuration `json:"configuration"`
+	Version       string        `json:"version"`
+	Configuration Configuration `json:"configuration"`
 }
 
 func FileExists(guildId string) bool {
@@ -60,6 +60,11 @@ func Save(guildId string) error {
 			log.Logf("can't write to a new file (%v): %v\n", guildId, err)
 			return err
 		}
+		err := file.Close()
+		if err != nil {
+			log.Logf("can't close a file (%v): %v\n", guildId, err)
+			return err
+		}
 		return nil
 	}
 }
@@ -81,12 +86,16 @@ func Load() {
 		if err != nil {
 			log.Fatalf("Can't read content file: %v\n", err)
 		}
-		guildId := file.Name()[:len(file.Name())-4]
+		guildId := file.Name()[:len(file.Name())-5]
 		config := ConfigurationFile{}
 		if err := json.Unmarshal(byteValue, &config); err != nil {
 			log.Fatalf("Cant unmarshal data from json (%v): %v\n", guildId, err)
 		}
 		configFiles[guildId] = &config
+		err = fileContent.Close()
+		if err != nil {
+			log.Logf("cant close file %v: %+#v\n", guildId, config)
+			return
+		}
 	}
-	log.Logf("%v config files loaded\n", len(configFiles))
 }

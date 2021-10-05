@@ -29,6 +29,8 @@ func Init(bot *skeleton.BotData) {
 	if err != nil {
 		bot.Fatalf("An error occurred at the bot creation: %v\n", err.Error())
 	}
+	bot.Log("Loading config files...\n")
+	config.Load()
 	bot.Log("Setting Discord session...\n")
 	bot.SetSession(session)
 	bot.Log("Retrieving bot's infos...\n")
@@ -40,6 +42,4 @@ func Init(bot *skeleton.BotData) {
 	if err = session.Open(); err != nil {
 		bot.Fatalf("Can't open the session: %v\n", err.Error())
 	}
-	bot.Log("Loading config files...\n")
-	config.Load()
 }

@@ -15,6 +15,10 @@ var (
 	reactMessages = make(map[string]map[string]string)
 )
 
+const (
+	delimiter = "⟹"
+)
+
 func GetRoleFromMessageReaction(messageId, reactionId string) string {
 	if reactMessages[messageId] != nil && reactMessages[messageId][reactionId] != "" {
 		return reactMessages[messageId][reactionId]
@@ -37,9 +41,9 @@ func setupMessageAndReactions(parser *parser.MessageParser, messageContent strin
 	var description string
 	for emoji, role := range reactions {
 		if strings.Contains(emoji, ":") {
-			description += fmt.Sprintf("<:%v> ⟹ <@&%v>\n", emoji, role)
+			description += fmt.Sprintf("<:%v>%v<@&%v>\n", emoji, delimiter, role)
 		} else {
-			description += fmt.Sprintf("%v ⟹ <@&%v>\n", emoji, role)
+			description += fmt.Sprintf("%v%v<@&%v>\n", emoji, delimiter, role)
 		}
 	}
 	message, err := skeleton.Bot.GetSession().ChannelMessageSendEmbed(parser.GetChannelId(), &discordgo.MessageEmbed{
@@ -63,7 +67,10 @@ func setupMessageAndReactions(parser *parser.MessageParser, messageContent strin
 			return err
 		}
 	}
-	config.UpdateReactionMessageId(parser.GetGuildId(), message.ID)
+	config.UpdateReactionMessageId(parser.GetGuildId(), config.ReactionConfig{
+		ChannelId: parser.GetChannelId(),
+		MessageId: message.ID,
+	})
 	return nil
 }
 
