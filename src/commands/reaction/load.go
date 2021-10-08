@@ -19,6 +19,9 @@ func LoadReactionMessage(guildId string) error {
 	lines := strings.Split(discMessage.Embeds[0].Description, "\n")
 	reactMessages[reactionConfig.MessageId] = make(map[string]string)
 	for _, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
 		lineContent := strings.Split(line, delimiter)
 		reactMessages[reactionConfig.MessageId][discord.GetReactionIdFromRawReactionId(lineContent[0])] = discord.GetRoleFromRawRoleId(lineContent[1])
 	}

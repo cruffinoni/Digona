@@ -19,6 +19,7 @@ type CommandPair struct {
 var commandsListing = map[string]CommandHandler{
 	"delete":       commands.RedirectDelete,
 	"react":        reaction.Role,
+	"react-add":    reaction.AddRole,
 	"qr-code":      privateMessage.GenerateQrCode,
 	"default-role": role.SetDefaultRole,
 }
