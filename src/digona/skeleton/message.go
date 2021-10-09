@@ -17,9 +17,9 @@ func (bot BotData) sendMessageToChannel(channelId, messageContent string, delaye
 		color = GenerateRandomMessageColor()
 	}
 	if message, err := bot.session.ChannelMessageSendEmbed(channelId, &discordgo.MessageEmbed{
-		Type:        discordgo.EmbedTypeRich,
-		Description: messageContent,
-		Color:       color,
+		Type:  discordgo.EmbedTypeRich,
+		Title: messageContent,
+		Color: color,
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: footerText,
 		},
