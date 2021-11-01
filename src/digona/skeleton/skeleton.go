@@ -3,6 +3,7 @@ package skeleton
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/cruffinoni/Digona/src/database"
 	"github.com/cruffinoni/Digona/src/logger"
 	"time"
 )
@@ -12,10 +13,22 @@ type BotData struct {
 	data      *discordgo.User
 	guild     map[string]*discordgo.Guild
 	startTime time.Time
+	database  *database.Database
 	logger.Logger
 }
 
 var Bot BotData
+
+func (bot *BotData) InitDatabase() {
+	var err error
+	if bot.database, err = database.New(); err != nil {
+		bot.FatalMsg(err)
+	}
+}
+
+func (bot *BotData) GetDatabase() *database.Database {
+	return bot.database
+}
 
 func (bot *BotData) RetrieveInfo() (err error) {
 	bot.data, err = bot.session.User("@me")

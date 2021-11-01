@@ -12,6 +12,7 @@ type MessageParser struct {
 	author      *discordgo.User
 	channel     string
 	args        []string
+	rawArgs     string
 	isMentioned bool
 	message     *discordgo.Message
 	guildId     string
@@ -56,7 +57,12 @@ func New(message *discordgo.MessageCreate, logger logger.Logger) (parser *Messag
 		//	return
 		//}
 	}
+	parser.rawArgs = strings.Join(parser.args, " ")
 	return
+}
+
+func (parser *MessageParser) GetRawArguments() string {
+	return parser.rawArgs
 }
 
 func (parser *MessageParser) IsTaggingHimself() bool {
@@ -75,6 +81,7 @@ func (parser *MessageParser) RemoveArgument(target string) {
 			parser.args = parser.args[1:]
 		}
 	}
+	parser.rawArgs = strings.Join(parser.args, " ")
 }
 
 func (parser MessageParser) GetArguments() []string {

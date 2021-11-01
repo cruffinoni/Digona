@@ -26,6 +26,7 @@ func GetFormattedToken() string {
 func Init(bot *skeleton.BotData) {
 	bot.Logf("Digona (version: %v), initialization...\n", version.BotVersion)
 	discordgo.MakeIntent(discordgo.IntentsAll)
+	bot.InitDatabase()
 	session, err := discordgo.New(GetFormattedToken())
 	if err != nil {
 		bot.Fatalf("An error occurred at the bot creation: %v\n", err.Error())

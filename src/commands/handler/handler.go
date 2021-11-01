@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/cruffinoni/Digona/src/commands"
+	"github.com/cruffinoni/Digona/src/commands/opgg"
 	"github.com/cruffinoni/Digona/src/commands/parser"
 	"github.com/cruffinoni/Digona/src/commands/privateMessage"
 	"github.com/cruffinoni/Digona/src/commands/reaction"
@@ -22,6 +23,8 @@ var commandsListing = map[string]CommandHandler{
 	"react-add":    reaction.ChangeReaction,
 	"qr-code":      privateMessage.GenerateQrCode,
 	"default-role": role.SetDefaultRole,
+	//"ranking":      common_pattern.GetRanking,
+	"opgg": opgg.GetOPGGLink,
 }
 
 func GetCommandFromArgs(args []string) *CommandPair {

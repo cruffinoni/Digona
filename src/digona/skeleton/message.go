@@ -6,7 +6,10 @@ import (
 	"time"
 )
 
-const TimeoutSec = 10
+const (
+	TimeoutSec = 10
+	redColor   = 15548997
+)
 
 func (bot BotData) sendMessageToChannel(channelId, messageContent string, delayed bool, color int) {
 	var footerText string
@@ -39,12 +42,16 @@ func (bot BotData) SendMessage(channelId, message string) {
 	bot.sendMessageToChannel(channelId, message, false, 0)
 }
 
+func (bot BotData) SendErrorMessage(channelId, message string) {
+	bot.sendMessageToChannel(channelId, message, false, redColor)
+}
+
 func (bot BotData) SendInternalServerErrorMessage(channelId string) {
-	bot.sendMessageToChannel(channelId, "Une erreur s'est produite, réessayez plus tard", false, 15548997)
+	bot.sendMessageToChannel(channelId, "Une erreur s'est produite, réessayez plus tard", false, redColor)
 }
 
 func (bot BotData) SendDelayedInternalServerErrorMessage(channelId string) {
-	bot.sendMessageToChannel(channelId, "Une erreur s'est produite, réessayez plus tard", true, 15548997)
+	bot.sendMessageToChannel(channelId, "Une erreur s'est produite, réessayez plus tard", true, redColor)
 }
 
 func (bot BotData) SendDelayedMessage(channelId, message string) {
