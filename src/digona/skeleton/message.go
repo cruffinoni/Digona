@@ -12,17 +12,27 @@ const (
 )
 
 func (bot BotData) sendMessageToChannel(channelId, messageContent string, delayed bool, color int) {
-	var footerText string
+	var (
+		footerText string
+		title      string
+		content    string
+	)
 	if delayed {
 		footerText = fmt.Sprintf("Ce message sera supprimé dans %v sec.", TimeoutSec)
 	}
 	if color == 0 {
 		color = GenerateRandomMessageColor()
 	}
+	if len(messageContent) >= 0xFF {
+		content = messageContent
+	} else {
+		title = messageContent
+	}
 	if message, err := bot.session.ChannelMessageSendEmbed(channelId, &discordgo.MessageEmbed{
-		Type:  discordgo.EmbedTypeRich,
-		Title: messageContent,
-		Color: color,
+		Type:        discordgo.EmbedTypeRich,
+		Title:       title,
+		Description: content,
+		Color:       color,
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: footerText,
 		},
@@ -44,6 +54,10 @@ func (bot BotData) SendMessage(channelId, message string) {
 
 func (bot BotData) SendErrorMessage(channelId, message string) {
 	bot.sendMessageToChannel(channelId, message, false, redColor)
+}
+
+func (bot BotData) SendDelayedErrorMessage(channelId, message string) {
+	bot.sendMessageToChannel(channelId, message, true, redColor)
 }
 
 func (bot BotData) SendInternalServerErrorMessage(channelId string) {
