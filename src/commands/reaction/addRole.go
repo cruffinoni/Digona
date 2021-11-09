@@ -61,13 +61,13 @@ func ChangeReaction(parser *parser.MessageParser) error {
 		messageId = parser.GetDiscordMessage().ID
 		args      = parser.GetArguments()
 	)
-	if len(args) != 2 {
-		skeleton.Bot.SendDelayedMessage(channelId, "Entrez l'emoji puis le rôle")
-		return nil
-	}
 	if reactMessages[config.GetReactionMessageChannel(guildId).MessageId] == nil {
 		skeleton.Bot.SendDelayedMessage(channelId, "Aucun message de réaction n'est présent. Utilisez la commande 'react' en premier.")
 		return discord.DeleteMessage(channelId, messageId)
+	}
+	if len(args) != 2 {
+		skeleton.Bot.SendDelayedMessage(channelId, "Entrez l'emoji puis le rôle")
+		return nil
 	}
 	var (
 		err          error
@@ -77,12 +77,12 @@ func ChangeReaction(parser *parser.MessageParser) error {
 	)
 	customEmojis, err = skeleton.Bot.GetSession().GuildEmojis(guildId)
 	if err != nil {
-		skeleton.Bot.SendMessage(channelId, "Je ne peux pas récupérer les émojis personnalisés de ce serveur")
+		skeleton.Bot.SendMessageWithNoTitle(channelId, "Je ne peux pas récupérer les émojis personnalisés de ce serveur")
 		return err
 	}
 	roles, err = skeleton.Bot.GetSession().GuildRoles(guildId)
 	if err != nil {
-		skeleton.Bot.SendMessage(channelId, "Je ne peux pas récupérer les roles de ce serveur")
+		skeleton.Bot.SendMessageWithNoTitle(channelId, "Je ne peux pas récupérer les roles de ce serveur")
 		return err
 	}
 	var currentEmojiId string
@@ -92,7 +92,7 @@ func ChangeReaction(parser *parser.MessageParser) error {
 		currentEmojiId = currentCustomEmoji.APIName()
 	}
 	if currentRole = discord.FindRoleFromRawRoleId(roles, args[1]); currentRole == nil {
-		skeleton.Bot.SendMessage(channelId, fmt.Sprintf("Impossible de trouver le rôle: '%v'", args[1]))
+		skeleton.Bot.SendMessageWithNoTitle(channelId, fmt.Sprintf("Impossible de trouver le rôle: '%v'", args[1]))
 		return err
 	}
 	if err = editOriginalMessage(guildId, currentEmojiId, currentRole.ID); err != nil {

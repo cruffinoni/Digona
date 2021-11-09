@@ -30,7 +30,7 @@ func attributeRoleToMembers(role *discordgo.Role, members []*discordgo.Member, g
 			skeleton.Bot.Errorf("An error occurred while setting the role '%v' to '%v': %v\n", role.Mention(), i.User.ID, err)
 			return err
 		}
-		if k%50 == 0 {
+		if k%50 == 0 && k > 0 {
 			time.Sleep(10 * time.Second)
 		}
 	}
@@ -46,11 +46,11 @@ func SetDefaultRole(parser *parser.MessageParser) error {
 	var role *discordgo.Role = nil
 	roles, err := skeleton.Bot.GetSession().GuildRoles(parser.GetGuildId())
 	if err != nil {
-		skeleton.Bot.SendMessage(parser.GetChannelId(), "Je ne peux pas récupérer les roles de ce serveur")
+		skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), "Je ne peux pas récupérer les roles de ce serveur")
 		return err
 	}
 	if role = discord.FindRoleFromRawRoleId(roles, args[0]); role == nil {
-		skeleton.Bot.SendMessage(parser.GetChannelId(), fmt.Sprintf("Impossible de trouver le rôle: '%v'", args[0]))
+		skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), fmt.Sprintf("Impossible de trouver le rôle: '%v'", args[0]))
 		return err
 	}
 	members, err := getAllMembersWithoutRole(parser.GetGuildId())
@@ -65,6 +65,6 @@ func SetDefaultRole(parser *parser.MessageParser) error {
 		skeleton.Bot.SendInternalServerErrorMessage(parser.GetGuildId())
 		return err
 	}
-	skeleton.Bot.SendMessage(parser.GetChannelId(), fmt.Sprintf("J'ai ajouté le rôle %v à %v personne(s)", role.Mention(), len(members)))
+	skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), fmt.Sprintf("J'ai ajouté le rôle %v à %v personne(s)", role.Mention(), len(members)))
 	return discord.DeleteMessage(parser.GetChannelId(), parser.GetDiscordMessage().ID)
 }

@@ -20,7 +20,7 @@ func deleteUserMessages(parser *parser.MessageParser, channelMessage []*discordg
 		if message.Author.Username == parser.GetDiscordMessage().Author.Username {
 			err := skeleton.Bot.GetSession().ChannelMessageDelete(parser.GetChannelId(), message.ID)
 			if err != nil {
-				skeleton.Bot.SendMessage(parser.GetChannelId(), fmt.Sprintf("Je n'ai réussi à supprimer que %v de tes messages %v.", count, parser.GetDiscordMessage().Author.Mention()))
+				skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), fmt.Sprintf("Je n'ai réussi à supprimer que %v de tes messages %v.", count, parser.GetDiscordMessage().Author.Mention()))
 				return err
 			}
 			deletedMsg++
@@ -36,7 +36,7 @@ func deleteLastMessages(parser *parser.MessageParser, channelMessage []*discordg
 	for count, eachMessage := range channelMessage {
 		err := skeleton.Bot.GetSession().ChannelMessageDelete(parser.GetChannelId(), eachMessage.ID)
 		if err != nil {
-			skeleton.Bot.SendMessage(parser.GetChannelId(), fmt.Sprintf("Je n'ai réussi à supprimer que %v message(s).", count))
+			skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), fmt.Sprintf("Je n'ai réussi à supprimer que %v message(s).", count))
 			return err
 		}
 	}
@@ -54,29 +54,29 @@ func getNumberOfMessageToDelete(message []string) (int, error) {
 
 func RedirectDelete(parser *parser.MessageParser) error {
 	if len(parser.GetArguments()) == 0 {
-		skeleton.Bot.SendMessage(parser.GetChannelId(), "Tu dois entrer le nombre de message à supprimer!")
+		skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), "Tu dois entrer le nombre de message à supprimer!")
 		return nil
 	}
 	count, err := getNumberOfMessageToDelete(parser.GetArguments())
 	if count == 0 && err != nil {
-		skeleton.Bot.SendMessage(parser.GetChannelId(), "Tu dois entrer le nombre de message que tu souhaites supprimer.")
+		skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), "Tu dois entrer le nombre de message que tu souhaites supprimer.")
 		return err
 	}
 	if count < minAmountDeleteMsg || count > (maxAmountDeleteMsg-1) {
-		skeleton.Bot.SendMessage(parser.GetChannelId(), fmt.Sprintf("Je ne peux supprimer qu'entre %v et %v messages à la fois.", minAmountDeleteMsg, maxAmountDeleteMsg-1))
+		skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), fmt.Sprintf("Je ne peux supprimer qu'entre %v et %v messages à la fois.", minAmountDeleteMsg, maxAmountDeleteMsg-1))
 		return nil
 	}
 	if parser.IsTaggingHimself() {
 		allMessages, err := skeleton.Bot.GetSession().ChannelMessages(parser.GetChannelId(), maxAmountDeleteMsg, "", "", parser.GetDiscordMessage().ID)
 		if err != nil {
-			skeleton.Bot.SendMessage(parser.GetChannelId(), "Je n'arrive pas à supprimer tes messages... Essayez dans quelques minutes "+parser.GetDiscordMessage().Author.Mention()+".")
+			skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), "Je n'arrive pas à supprimer tes messages... Essayez dans quelques minutes "+parser.GetDiscordMessage().Author.Mention()+".")
 			return err
 		}
 		return deleteUserMessages(parser, allMessages, count+1)
 	}
 	allMessages, err := skeleton.Bot.GetSession().ChannelMessages(parser.GetChannelId(), count+1, "", "", parser.GetDiscordMessage().ID)
 	if err != nil {
-		skeleton.Bot.SendMessage(parser.GetChannelId(), "Je n'arrive pas à supprimer les messages... Essayez dans quelques minutes."+parser.GetDiscordMessage().Author.Mention()+".")
+		skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), "Je n'arrive pas à supprimer les messages... Essayez dans quelques minutes."+parser.GetDiscordMessage().Author.Mention()+".")
 		return err
 	}
 	return deleteLastMessages(parser, allMessages)

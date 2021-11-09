@@ -16,14 +16,14 @@ func findChannelFromArgs(msg *parser.MessageParser) (*discordgo.Channel, error) 
 		return nil, err
 	} else if channelId == "" {
 		skeleton.Bot.Logf("No channel id detected from %+v\n", msg.GetArguments())
-		skeleton.Bot.SendMessage(msg.GetChannelId(), "Aucun channel n'a été détecté")
+		skeleton.Bot.SendMessageWithNoTitle(msg.GetChannelId(), "Aucun channel n'a été détecté")
 		return nil, nil
 	}
 	channelData, err := discord.GetChannelDataFromRawId(channelId)
 	if err != nil {
 		skeleton.Bot.Logf("Error while getting channel '%+v'\n", err)
 		if discord.IsMissingAccessError(err) {
-			skeleton.Bot.SendMessage(msg.GetChannelId(), "Je n'ai pas accés à ce channel")
+			skeleton.Bot.SendMessageWithNoTitle(msg.GetChannelId(), "Je n'ai pas accés à ce channel")
 			return nil, err
 		}
 		skeleton.Bot.SendInternalServerErrorMessage(msg.GetChannelId())

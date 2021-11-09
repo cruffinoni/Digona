@@ -42,7 +42,7 @@ func setupMessageAndReactions(channelId, guildId, messageContent string) error {
 
 func Role(parser *parser.MessageParser) error {
 	if len(parser.GetArguments()) < 1 {
-		skeleton.Bot.SendMessage(parser.GetChannelId(), "Entrez le message à afficher.")
+		skeleton.Bot.SendMessageWithNoTitle(parser.GetChannelId(), "Entrez le message à afficher.")
 		return nil
 	}
 

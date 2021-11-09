@@ -3,6 +3,8 @@ package config
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/cruffinoni/Digona/src/digona/version"
 	"github.com/cruffinoni/Digona/src/logger"
 	"io/ioutil"
@@ -42,6 +44,17 @@ func Create(guildId string) error {
 	return Save(guildId)
 }
 
+func Delete(guildId string) error {
+	if !FileExists(guildId) {
+		log.Errorf("Config file for %v does not exists\n", guildId)
+		return errors.New("config file does not exists")
+	}
+	if err := os.Remove(formatJSONFileName(guildId)); err != nil {
+		return fmt.Errorf("can't delete the file: %v", err)
+	}
+	return nil
+}
+
 func formatJSONFileName(guildId string) string {
 	return "./config/" + guildId + ".json"
 }
@@ -60,7 +73,7 @@ func Save(guildId string) error {
 			log.Logf("can't write to a new file (%v): %v\n", guildId, err)
 			return err
 		}
-		err := file.Close()
+		err = file.Close()
 		if err != nil {
 			log.Logf("can't close a file (%v): %v\n", guildId, err)
 			return err

@@ -23,7 +23,7 @@ func (db Database) LoadUsersForGuild(guildId string) ([]models.TableUser, error)
 }
 
 func (db Database) DeleteUsersFromGuild(guildId string) error {
-	return db.db.Delete(&models.TableUser{}, "guildId = ?", guildId).Error
+	return db.db.Unscoped().Delete(&models.TableUser{}, "guild_id = ?", guildId).Error
 }
 
 func (db Database) AddPointForMessage(guildId, userId string) error {

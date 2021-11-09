@@ -16,6 +16,11 @@ func OnBotReady(_ *discordgo.Session, _ *discordgo.Ready) {
 func OnGuildCreate(_ *discordgo.Session, guild *discordgo.GuildCreate) {
 	skeleton.Bot.RegisterGuild(guild.Guild)
 	skeleton.Bot.Logf("Guild '%v' added\n", guild.Name)
+	if !config.FileExists(guild.ID) {
+		if err := config.Create(guild.ID); err != nil {
+			skeleton.Bot.Errorf("[%v] unable to create the config file: %v\n", guild.ID, err)
+		}
+	}
 	usersFromGuild, err := skeleton.Bot.GetDatabase().LoadUsersForGuild(guild.ID)
 	if err != nil {
 		skeleton.Bot.Errorf("unable to get all users from the database (guild id %v): %v\n", guild.ID, err)
@@ -33,7 +38,7 @@ func OnGuildCreate(_ *discordgo.Session, guild *discordgo.GuildCreate) {
 		}
 	}
 	if !config.FileExists(guild.ID) {
-		if err := config.Create(guild.ID); err != nil {
+		if err = config.Create(guild.ID); err != nil {
 			skeleton.Bot.Errorf("unable to create a config file (guild id %v) => \n", guild.ID, err)
 		}
 	}
@@ -47,5 +52,8 @@ func OnGuildDelete(_ *discordgo.Session, guild *discordgo.GuildDelete) {
 	skeleton.Bot.Logf("Guild id %v deleted\n", guild.ID)
 	if err := skeleton.Bot.GetDatabase().DeleteUsersFromGuild(guild.ID); err != nil {
 		skeleton.Bot.Errorf("can't delete all users from database (guild id %v): %v\n", guild.ID, err)
+	}
+	if err := config.Delete(guild.ID); err != nil {
+		skeleton.Bot.Errorf("can't delete the config file (guild id %v): %v\n", guild.ID, err)
 	}
 }
