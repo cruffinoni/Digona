@@ -1,26 +1,24 @@
 package user
 
-import "github.com/cruffinoni/Digona/src/database/models"
+import (
+	"github.com/cruffinoni/Digona/src/database/models"
+)
 
 type User struct {
 	DatabaseModel models.TableUser
-	DiscordId     string
-	Point         int
 }
 
+type userMap map[string]*models.TableUser
+
 var (
-	StoredUsers = make(map[string]map[string]*User)
+	StoredUsers = make(map[string]userMap)
 )
 
 func StoreUsersFromModels(guildId string, model []models.TableUser) {
 	if StoredUsers[guildId] == nil {
-		StoredUsers[guildId] = make(map[string]*User)
+		StoredUsers[guildId] = make(map[string]*models.TableUser)
 	}
-	for _, u := range model {
-		StoredUsers[guildId][u.DiscordId] = &User{
-			DatabaseModel: u,
-			DiscordId:     u.DiscordId,
-			Point:         u.Point,
-		}
+	for i := range model {
+		StoredUsers[guildId][model[i].DiscordId] = &model[i]
 	}
 }

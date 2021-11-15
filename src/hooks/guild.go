@@ -21,7 +21,8 @@ func OnGuildCreate(_ *discordgo.Session, guild *discordgo.GuildCreate) {
 			skeleton.Bot.Errorf("[%v] unable to create the config file: %v\n", guild.ID, err)
 		}
 	}
-	usersFromGuild, err := skeleton.Bot.GetDatabase().LoadUsersForGuild(guild.ID)
+
+	usersFromGuild, err := skeleton.Bot.GetDatabase().LoadUsersFromGuild(guild.ID)
 	if err != nil {
 		skeleton.Bot.Errorf("unable to get all users from the database (guild id %v): %v\n", guild.ID, err)
 		return

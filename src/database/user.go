@@ -16,7 +16,7 @@ func (db Database) AddUser(guildId, userId string) (models.TableUser, error) {
 	return user, err
 }
 
-func (db Database) LoadUsersForGuild(guildId string) ([]models.TableUser, error) {
+func (db Database) LoadUsersFromGuild(guildId string) ([]models.TableUser, error) {
 	var users []models.TableUser
 	err := db.db.Model(&models.TableUser{}).Find(&users, "guild_id = ?", guildId).Error
 	return users, err
@@ -37,4 +37,8 @@ func (db Database) AddPointForMessage(guildId, userId string) error {
 func (db Database) GetBestRankedPlayers(guildId string, max int) (users []models.TableUser, err error) {
 	err = db.db.Model(&models.TableUser{}).Limit(max).Order("point DESC").Find(&users, "guild_id = ?", guildId).Error
 	return
+}
+
+func (db Database) SetLevel(user models.TableUser) error {
+	return db.db.Model(&user).Update("level", user.Level).Error
 }

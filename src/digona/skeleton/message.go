@@ -47,8 +47,8 @@ func (bot BotData) sendMessageToChannel(channelId, messageContent, title string,
 	}
 }
 
-func (bot BotData) SendMessageWithTitle(channelId, message string) {
-	bot.sendMessageToChannel(channelId, message, "", false, false, 0)
+func (bot BotData) SendMessageWithTitle(channelId, message, title string) {
+	bot.sendMessageToChannel(channelId, message, title, false, false, 0)
 }
 
 func (bot BotData) SendMessageWithNoTitle(channelId, message string) {
