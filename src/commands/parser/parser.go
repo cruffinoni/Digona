@@ -38,6 +38,7 @@ func New(message *discordgo.MessageCreate, logger logger.Logger) (parser *Messag
 		guildId:     message.GuildID,
 	}
 	if !checkIsBotMentioned(message.Mentions) {
+		parser.args = append(parser.args, strings.Split(message.Content, " ")...)
 		return
 	}
 	parser.isMentioned = true
