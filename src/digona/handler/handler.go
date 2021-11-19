@@ -12,6 +12,7 @@ var discordHandlers = []interface{}{
 	hooks.OnUserRemoveReact,
 	hooks.OnGuildCreate,
 	hooks.OnGuildDelete,
+	hooks.OnUserUseSlashCommands,
 }
 
 func RegisterHandler(session *discordgo.Session) {

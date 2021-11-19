@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/cruffinoni/Digona/src/commands/parser"
-	"github.com/cruffinoni/Digona/src/digona/config"
+	"github.com/cruffinoni/Digona/src/config"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
 	"github.com/cruffinoni/Digona/src/discord"
 	"strings"

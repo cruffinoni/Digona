@@ -3,7 +3,8 @@ package digona
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/cruffinoni/Digona/src/digona/config"
+	"github.com/cruffinoni/Digona/src/config"
+	"github.com/cruffinoni/Digona/src/database/models"
 	"github.com/cruffinoni/Digona/src/digona/handler"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
 	"github.com/cruffinoni/Digona/src/digona/version"
@@ -32,7 +33,13 @@ func Init(bot *skeleton.BotData) {
 		bot.Fatalf("An error occurred at the bot creation: %v\n", err.Error())
 	}
 	bot.Log("Loading config files...\n")
-	config.Load()
+	var configs []models.TableConfig
+	if configs, err = bot.GetDatabase().LoadAllConfigFiles(); err != nil {
+		bot.Fatalf("error while loading the config files: %v", err)
+	}
+	if err = config.StoreConfigFiles(configs); err != nil {
+		bot.Fatalf("can't store the config files: %v", err)
+	}
 	bot.Log("Setting Discord session...\n")
 	bot.SetSession(session)
 	bot.Log("Retrieving bot's infos...\n")

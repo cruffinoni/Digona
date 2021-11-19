@@ -8,7 +8,7 @@ import (
 
 const (
 	TimeoutSec = 10
-	redColor   = 15548997
+	RedColor   = 15548997
 )
 
 func (bot BotData) sendMessageToChannel(channelId, messageContent, title string, delayed, forceDescription bool, color int) {
@@ -56,19 +56,19 @@ func (bot BotData) SendMessageWithNoTitle(channelId, message string) {
 }
 
 func (bot BotData) SendErrorMessage(channelId, message string) {
-	bot.sendMessageToChannel(channelId, message, "", false, false, redColor)
+	bot.sendMessageToChannel(channelId, message, "", false, false, RedColor)
 }
 
 func (bot BotData) SendDelayedErrorMessage(channelId, message string) {
-	bot.sendMessageToChannel(channelId, message, "", true, false, redColor)
+	bot.sendMessageToChannel(channelId, message, "", true, false, RedColor)
 }
 
 func (bot BotData) SendInternalServerErrorMessage(channelId string) {
-	bot.sendMessageToChannel(channelId, "", "Une erreur s'est produite, réessayez plus tard", false, false, redColor)
+	bot.sendMessageToChannel(channelId, "", "Une erreur s'est produite, réessayez plus tard", false, false, RedColor)
 }
 
 func (bot BotData) SendDelayedInternalServerErrorMessage(channelId string) {
-	bot.sendMessageToChannel(channelId, "", "Une erreur s'est produite, réessayez plus tard", true, false, redColor)
+	bot.sendMessageToChannel(channelId, "", "Une erreur s'est produite, réessayez plus tard", true, false, RedColor)
 }
 
 func (bot BotData) SendDelayedMessage(channelId, message string) {

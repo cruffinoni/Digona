@@ -2,8 +2,9 @@ package hooks
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/cruffinoni/Digona/src/commands/handler"
 	"github.com/cruffinoni/Digona/src/commands/reaction"
-	"github.com/cruffinoni/Digona/src/digona/config"
+	"github.com/cruffinoni/Digona/src/config"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
 	"github.com/cruffinoni/Digona/src/discord"
 	"github.com/cruffinoni/Digona/src/user"
@@ -16,11 +17,6 @@ func OnBotReady(_ *discordgo.Session, _ *discordgo.Ready) {
 func OnGuildCreate(_ *discordgo.Session, guild *discordgo.GuildCreate) {
 	skeleton.Bot.RegisterGuild(guild.Guild)
 	skeleton.Bot.Logf("Guild '%v' added\n", guild.Name)
-	if !config.FileExists(guild.ID) {
-		if err := config.Create(guild.ID); err != nil {
-			skeleton.Bot.Errorf("[%v] unable to create the config file: %v\n", guild.ID, err)
-		}
-	}
 
 	usersFromGuild, err := skeleton.Bot.GetDatabase().LoadUsersFromGuild(guild.ID)
 	if err != nil {
@@ -38,13 +34,19 @@ func OnGuildCreate(_ *discordgo.Session, guild *discordgo.GuildCreate) {
 			}
 		}
 	}
-	if !config.FileExists(guild.ID) {
-		if err = config.Create(guild.ID); err != nil {
+	if !config.DoesExists(guild.ID) {
+		if err = skeleton.Bot.GetDatabase().CreateFileConfig(guild.ID); err != nil {
 			skeleton.Bot.Errorf("unable to create a config file (guild id %v) => \n", guild.ID, err)
 		}
+		config.StoreConfig(guild.ID, config.GenerateConfigFileHolder())
+	} else {
+		// TODO: Create a loader that load every specific config
+		if err = reaction.LoadReactionMessage(guild.ID); err != nil {
+			skeleton.Bot.Errorf("unable to load the reaction message (guild id %v): %v\n", guild.ID, err)
+		}
 	}
-	if err = reaction.LoadReactionMessage(guild.ID); err != nil {
-		skeleton.Bot.Errorf("unable to load the reaction message (guild id %v): %v\n", guild.ID, err)
+	if guild.Name == "private_discord" {
+		handler.RegisterCommands(guild.ID)
 	}
 }
 
@@ -54,7 +56,7 @@ func OnGuildDelete(_ *discordgo.Session, guild *discordgo.GuildDelete) {
 	if err := skeleton.Bot.GetDatabase().DeleteUsersFromGuild(guild.ID); err != nil {
 		skeleton.Bot.Errorf("can't delete all users from database (guild id %v): %v\n", guild.ID, err)
 	}
-	if err := config.Delete(guild.ID); err != nil {
+	if err := skeleton.Bot.GetDatabase().DeleteConfig(guild.ID); err != nil {
 		skeleton.Bot.Errorf("can't delete the config file (guild id %v): %v\n", guild.ID, err)
 	}
 }

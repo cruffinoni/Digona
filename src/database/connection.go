@@ -21,7 +21,7 @@ func New() (*Database, error) {
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("unable to open the database: %v", err))
 	}
-	err = database.db.AutoMigrate(&models.TableUser{})
+	err = database.db.AutoMigrate(&models.TableUser{}, &models.TableConfig{})
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("unable to migrate the schema: %v", err))
 	}

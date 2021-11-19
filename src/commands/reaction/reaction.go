@@ -3,7 +3,8 @@ package reaction
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/cruffinoni/Digona/src/commands/parser"
-	"github.com/cruffinoni/Digona/src/digona/config"
+	"github.com/cruffinoni/Digona/src/config"
+	"github.com/cruffinoni/Digona/src/database/models"
 	"github.com/cruffinoni/Digona/src/digona/skeleton"
 	"github.com/cruffinoni/Digona/src/discord"
 )
@@ -33,7 +34,7 @@ func setupMessageAndReactions(channelId, guildId, messageContent string) error {
 		Color:  skeleton.GenerateRandomMessageColor(),
 	})
 	reactMessages[message.ID] = make(map[string]string)
-	config.UpdateReactionMessageId(guildId, config.ReactionConfig{
+	config.UpdateReactionMessageId(guildId, models.ReactionConfig{
 		ChannelId: channelId,
 		MessageId: message.ID,
 	})
